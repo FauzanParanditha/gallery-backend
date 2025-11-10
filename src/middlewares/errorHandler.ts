@@ -1,9 +1,11 @@
 import { AppError, errorBody } from "@/libs/errors";
 import { logger } from "@/libs/logger";
-import { Prisma } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { ZodError } from "zod";
+
+// Import kelas error dari runtime Prisma (v5+)
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export function errorHandler(
   err: unknown,
@@ -47,8 +49,8 @@ export function errorHandler(
     });
   }
 
-  // Prisma known errors
-  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+  // Prisma known errors (tanpa namespace Prisma)
+  if (err instanceof PrismaClientKnownRequestError) {
     let status = 400;
     let message = "Database error";
     if (err.code === "P2002") {
@@ -62,12 +64,14 @@ export function errorHandler(
       { rid, err: { code: err.code, meta: err.meta } },
       "Prisma error"
     );
-    return res
-      .status(status)
-      .json({ error: "PrismaError", message, requestId: rid });
+    return res.status(status).json({
+      error: "PrismaError",
+      message,
+      requestId: rid,
+    });
   }
 
-  // JWT errors (akses kadaluwarsa/invalid)
+  // JWT errors
   if (
     err instanceof jwt.JsonWebTokenError ||
     err instanceof jwt.TokenExpiredError
@@ -76,9 +80,11 @@ export function errorHandler(
       { rid, err: { name: err.name, message: err.message } },
       "JWT error"
     );
-    return res
-      .status(401)
-      .json({ error: "Unauthorized", message: err.message, requestId: rid });
+    return res.status(401).json({
+      error: "Unauthorized",
+      message: err.message,
+      requestId: rid,
+    });
   }
 
   // Rate limiter (express-rate-limit)
