@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+  output = "../../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique @db.Citext
+  passwordHash String
+  role         UserRole @default(admin)
+  createdAt    DateTime @default(now())
+
+  sessions Session[]
+}
+
+model Album {
+  id           String    @id @default(cuid())
+  slug         String    @unique
+  title        String
+  description  String?
+  eventDate    DateTime?
+  coverPhotoId String?
+  coverPhoto   Photo?    @relation("AlbumCover", fields: [coverPhotoId], references: [id], onDelete: SetNull)
+
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  photos     Photo[]       @relation("AlbumPhotos")
+  shareLinks ShareLink[]
+  downloads  DownloadLog[]
+  albumTag   AlbumTag[]
+
+  albumPrivacy AlbumPrivacy?
+
+  //   // kolom tsvector (hanya ditampung; dibuat via migration SQL)
+  searchDoc Unsupported("tsvector")?
+
+  @@index([isPublished, createdAt])
+  @@index([eventDate])
+}
+
+model Photo {
+  id      String @id @default(cuid())
+  albumId String
+  album   Album  @relation("AlbumPhotos", fields: [albumId], references: [id], onDelete: Cascade)
+
+  keyOriginal String
+  keyThumb    String?
+  mimeType    String?
+  checksum    String?
+  etag        String?
+  width       Int?
+  height      Int?
+  sizeBytes   Int?
+  status      PhotoStatus @default(pending)
+  lastError   String? 
+  caption     String?
+  isFeatured  Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  downloads DownloadLog[]
+  photoTag  PhotoTag[]
+
+  coverOfAlbums Album[] @relation("AlbumCover")
+
+  @@unique([albumId, keyOriginal])
+  @@index([albumId, sortOrder, createdAt])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String
+  action      String // ex: "ALBUM_CREATE","PHOTO_DELETE","ALBUM_PUBLISH"
+  targetType  String // "album" | "photo" | "user"
+  targetId    String
+  metaJson    String? // payload ringkas (sebelum/sesudah)
+  createdAt   DateTime @default(now())
+
+  @@index([actorUserId, createdAt])
+  @@index([targetType, targetId])
+}
+
+model Session {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokenHash String   @unique
+  userAgent        String?
+  ipAddress        String?
+  isRevoked        Boolean  @default(false)
+  expiresAt        DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId, isRevoked])
+  @@index([expiresAt])
+}
+
+model AlbumPrivacy {
+  albumId String @id
+  album   Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+  isPublic      Boolean @default(true) // tampil di public listing
+  allowDownload Boolean @default(true) // munculkan tombol download
+  allowShare    Boolean @default(true) // munculkan tombol share
+  watermarkOn   Boolean @default(false) // aktifkan watermark saat generate thumb
+  accessCode    String? // opsional: akses album pakai kode
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DownloadLog {
+  id String @id @default(cuid())
+
+  // Jadikan opsional agar log tidak hilang saat entitas dihapus
+  photoId String?
+  photo   Photo?  @relation(fields: [photoId], references: [id], onDelete: SetNull)
+
+  albumId String?
+  album   Album?  @relation(fields: [albumId], references: [id], onDelete: SetNull)
+
+  ipAddress String?
+  userAgent String?
+  via       String? // "direct" | "share_link" | "admin"
+  createdAt DateTime @default(now())
+
+  @@index([albumId, createdAt])
+  @@index([photoId, createdAt])
+}
+
+model ShareLink {
+  id        String    @id @default(cuid())
+  albumId   String
+  album     Album     @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  slug      String    @unique // /share/:slug
+  note      String?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([albumId])
+  @@index([expiresAt])
+}
+
+model Tag {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  AlbumTag  AlbumTag[]
+  PhotoTag  PhotoTag[]
+}
+
+model AlbumTag {
+  albumId String
+  tagId   String
+  album   Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([albumId, tagId])
+  @@index([tagId])
+}
+
+model PhotoTag {
+  photoId String
+  tagId   String
+  photo   Photo  @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([photoId, tagId])
+  @@index([tagId])
+}
+
+model WatermarkConfig {
+  id        Int      @id @default(1)
+  enabled   Boolean  @default(false)
+  text      String? // atau path logo
+  opacity   Int? // 0-100
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PhotoStatus {
+  pending
+  processed
+  error
+}
