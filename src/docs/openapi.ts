@@ -205,7 +205,7 @@ export function buildOpenApi() {
   // --- Auth ---
   registry.registerPath({
     method: "post",
-    path: "/v1/auth/login",
+    path: "/auth/login",
     request: {
       body: { content: { "application/json": { schema: LoginDto } } },
     },
@@ -228,7 +228,7 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: "post",
-    path: "/v1/auth/refresh",
+    path: "/auth/refresh",
     responses: {
       200: {
         description: "New access/refresh issued",
@@ -244,7 +244,7 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: "post",
-    path: "/v1/auth/logout",
+    path: "/auth/logout",
     responses: { 204: { description: "Logged out" } },
     tags: ["Auth"],
     summary: "Logout & revoke session",
@@ -253,7 +253,7 @@ export function buildOpenApi() {
   // --- Albums (admin) ---
   registry.registerPath({
     method: "post",
-    path: "/v1/albums",
+    path: "/albums",
     security: [{ CookieAuth: [] }],
     request: {
       body: { content: { "application/json": { schema: CreateAlbumDto } } },
@@ -277,7 +277,7 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: "get",
-    path: "/v1/albums",
+    path: "/albums",
     security: [{ CookieAuth: [] }],
     responses: {
       200: {
@@ -298,7 +298,7 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: "get",
-    path: "/v1/albums/{id}",
+    path: "/albums/{id}",
     security: [{ CookieAuth: [] }],
     request: { params: IdParam },
     responses: {
@@ -320,7 +320,7 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: "patch",
-    path: "/v1/albums/{id}",
+    path: "/albums/{id}",
     security: [{ CookieAuth: [] }],
     request: {
       params: IdParam,
@@ -351,7 +351,7 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: "delete",
-    path: "/v1/albums/{id}",
+    path: "/albums/{id}",
     security: [{ CookieAuth: [] }],
     request: { params: IdParam },
     responses: {
@@ -372,7 +372,7 @@ export function buildOpenApi() {
   // --- Albums: publish toggle & privacy (admin) ---
   registry.registerPath({
     method: "patch",
-    path: "/v1/albums/{id}/publish",
+    path: "/albums/{id}/publish",
     security: [{ CookieAuth: [] }],
     request: {
       params: IdParam,
@@ -397,7 +397,7 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: "patch",
-    path: "/v1/albums/{id}/privacy",
+    path: "/albums/{id}/privacy",
     security: [{ CookieAuth: [] }],
     request: {
       params: IdParam,
@@ -424,7 +424,7 @@ export function buildOpenApi() {
   // --- Albums: public listing/detail ---
   registry.registerPath({
     method: "get",
-    path: "/v1/public/albums",
+    path: "/public/albums",
     responses: {
       200: {
         description: "List published albums",
@@ -436,7 +436,7 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: "get",
-    path: "/v1/public/albums/{slug}",
+    path: "/public/albums/{slug}",
     request: { params: z.object({ slug: z.string().min(1) }) },
     responses: {
       200: {
@@ -455,7 +455,7 @@ export function buildOpenApi() {
   // --- Photos (admin) ---
   registry.registerPath({
     method: "post",
-    path: "/v1/photos/presign",
+    path: "/photos/presign",
     security: [{ CookieAuth: [] }],
     request: {
       body: { content: { "application/json": { schema: PresignDto } } },
@@ -483,7 +483,7 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: "post",
-    path: "/v1/photos/confirm",
+    path: "/photos/confirm",
     security: [{ CookieAuth: [] }],
     request: {
       body: { content: { "application/json": { schema: ConfirmDto } } },
@@ -507,7 +507,7 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: "get",
-    path: "/v1/photos/album/{albumId}",
+    path: "/photos/album/{albumId}",
     security: [{ CookieAuth: [] }],
     request: { params: AlbumIdParam },
     responses: {
@@ -525,7 +525,7 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: "patch",
-    path: "/v1/photos/{id}",
+    path: "/photos/{id}",
     security: [{ CookieAuth: [] }],
     request: {
       params: IdParam,
@@ -554,7 +554,7 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: "delete",
-    path: "/v1/photos/{id}",
+    path: "/photos/{id}",
     security: [{ CookieAuth: [] }],
     request: { params: IdParam },
     responses: {
@@ -575,7 +575,7 @@ export function buildOpenApi() {
   // --- Public download (direct) ---
   registry.registerPath({
     method: "post",
-    path: "/v1/public/photos/{photoId}/download",
+    path: "/public/photos/{photoId}/download",
     request: { params: PhotoIdParam },
     responses: {
       200: {
@@ -603,7 +603,7 @@ export function buildOpenApi() {
   // Create share link
   registry.registerPath({
     method: "post",
-    path: "/v1/share/albums/{albumId}",
+    path: "/share/albums/{albumId}",
     security: [{ CookieAuth: [] }],
     request: {
       params: AlbumIdParam,
@@ -645,7 +645,7 @@ export function buildOpenApi() {
   // List share links for an album (admin)
   registry.registerPath({
     method: "get",
-    path: "/v1/share/albums/{albumId}",
+    path: "/share/albums/{albumId}",
     security: [{ CookieAuth: [] }],
     request: { params: AlbumIdParam },
     responses: {
@@ -669,7 +669,7 @@ export function buildOpenApi() {
   // Delete share link by slug (admin)
   registry.registerPath({
     method: "delete",
-    path: "/v1/share/{slug}",
+    path: "/share/{slug}",
     security: [{ CookieAuth: [] }],
     request: { params: ShareSlugParam },
     responses: {
@@ -690,7 +690,7 @@ export function buildOpenApi() {
   // Open share (public)
   registry.registerPath({
     method: "get",
-    path: "/v1/share/{slug}",
+    path: "/share/{slug}",
     request: { params: ShareSlugParam },
     responses: {
       200: {
@@ -726,7 +726,7 @@ export function buildOpenApi() {
   // Public download via share
   registry.registerPath({
     method: "post",
-    path: "/v1/public/share/{slug}/photos/{photoId}/download",
+    path: "/public/share/{slug}/photos/{photoId}/download",
     request: { params: ShareSlugParam.merge(PhotoIdParam) },
     responses: {
       200: {
@@ -753,7 +753,7 @@ export function buildOpenApi() {
   // --- Metrics (admin) ---
   registry.registerPath({
     method: "get",
-    path: "/v1/metrics/presign-user-today",
+    path: "/metrics/presign-user-today",
     security: [{ CookieAuth: [] }],
     request: { query: MetricsPresignUserTodayQuery },
     responses: {
