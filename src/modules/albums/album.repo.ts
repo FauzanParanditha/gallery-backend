@@ -50,6 +50,7 @@ export const AlbumRepo = {
         isPublished: true,
         coverPhotoId: true,
         createdAt: true,
+        updatedAt: true,
       },
     });
   },
