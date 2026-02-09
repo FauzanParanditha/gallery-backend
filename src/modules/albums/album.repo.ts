@@ -21,10 +21,44 @@ export const AlbumRepo = {
     return prisma.album.create({ data });
   },
   findById(id: string) {
-    return prisma.album.findUnique({ where: { id } });
+    return prisma.album.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        description: true,
+        eventDate: true,
+        coverPhoto: true,
+        isPublished: true,
+        createdAt: true,
+        updatedAt: true,
+        photos: true,
+        albumTag: true,
+        albumPrivacy: true,
+        shareLinks: true,
+      },
+    });
   },
   findBySlug(slug: string) {
-    return prisma.album.findUnique({ where: { slug } });
+    return prisma.album.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        description: true,
+        eventDate: true,
+        coverPhoto: true,
+        isPublished: true,
+        createdAt: true,
+        updatedAt: true,
+        photos: true,
+        albumTag: true,
+        albumPrivacy: true,
+        shareLinks: true,
+      },
+    });
   },
   async list({
     page,

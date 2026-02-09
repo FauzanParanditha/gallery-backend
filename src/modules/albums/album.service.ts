@@ -64,6 +64,8 @@ export const AlbumService = {
       eventDate: input.eventDate ? new Date(input.eventDate) : undefined,
       slug: input.slug,
       isPublished: input.isPublished,
+      createdAt: input.createdAt,
+      updatedAt: input.updatedAt,
     });
   },
   async remove(id: string) {

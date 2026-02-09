@@ -37,14 +37,14 @@ beforeAll(async () => {
 afterEach(async () => {});
 
 afterAll(async () => {
-  await prisma.downloadLog.deleteMany();
-  await prisma.shareLink.deleteMany();
-  await prisma.photoTag.deleteMany();
-  await prisma.albumTag.deleteMany();
-  await prisma.tag.deleteMany();
-  await prisma.photo.deleteMany();
-  await prisma.album.deleteMany();
-  await prisma.session.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.$disconnect();
+  // await prisma.downloadLog.deleteMany();
+  // await prisma.shareLink.deleteMany();
+  // await prisma.photoTag.deleteMany();
+  // await prisma.albumTag.deleteMany();
+  // await prisma.tag.deleteMany();
+  // await prisma.photo.deleteMany();
+  // await prisma.album.deleteMany();
+  // await prisma.session.deleteMany();
+  // await prisma.user.deleteMany();
+  // await prisma.$disconnect();
 });

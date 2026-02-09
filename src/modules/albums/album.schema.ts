@@ -12,6 +12,16 @@ export const CreateAlbumDto = z
       .openapi({ example: "2025-10-22T14:00:00.000Z" }),
     slug: z.string().min(1).openapi({ example: "presscon-trailer" }),
     isPublished: z.boolean().optional().default(false),
+    createdAt: z
+      .string()
+      .datetime()
+      .optional()
+      .openapi({ example: "2024-06-01T10:00:00.000Z" }),
+    updatedAt: z
+      .string()
+      .datetime()
+      .optional()
+      .openapi({ example: "2024-06-01T10:00:00.000Z" }),
   })
   .openapi("CreateAlbumDto");
 
